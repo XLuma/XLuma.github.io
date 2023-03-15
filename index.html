@@ -1,0 +1,118 @@
+<html>
+    <head>
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.js"></script>
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.js"></script>
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/@holoviz/panel@0.13.0/dist/panel.min.js"></script>
+        <script type="text/javascript">
+          Bokeh.set_log_level("info");
+        </script>
+    
+    
+        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+        <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+    </head>
+  <body>
+        <py-config type="toml">
+            packages = ["numpy", "pandas", "panel==0.13.1a2", "activejson", "./crcmod-1.7-py3-none-any.whl", "ndspy", "more_itertools", "ordered_set"]
+            terminal = false
+            [[fetch]]
+            files = ["./randomizer_py.zip"]
+        </py-config>
+        <h1 style="text-align: center;">Universal Warp Randomizer</h1>
+        <h2>How to use</h2>
+        <ul>
+            <li>Click choose file, and select your rom</li>
+            <li>Click randomize, and wait</li>
+            <li>Click download to download your output. It will be a zip file containing your randomized game, and seed.</li>
+        </ul>
+        <div id="fileinput"></div>
+        <div id="upload"></div>
+        <div id="download_result" ></div>
+
+
+        <!---<py-script>
+            from randomizer_py import WarpRandomizerMain
+            WarpRandomizerMain.randomize()
+        </py-script> --->
+        <py-script>
+            import asyncio
+            import panel as pn
+            import pandas as pd
+            from panel.io.pyodide import show
+            import os
+            import zipfile
+            import sys
+            import shutil
+
+            fileInput = pn.widgets.FileInput(accept='.gba,.nds')
+            uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
+            downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
+
+            with zipfile.ZipFile("/home/pyodide/randomizer_py.zip","r") as zip_ref:
+                zip_ref.extractall()
+
+            def process_file(event):
+                sys.path.insert(0, '/home/pyodide/randomizer_py')
+                from randomizer_py.WarpRandomizerMain import randomize
+                print(fileInput)
+                print(os.path.abspath(fileInput.filename))
+                with open(f'/home/pyodide/{fileInput.filename}', 'wb') as file:
+                    file.write(fileInput.value)
+                os.makedirs("/home/pyodide/output")
+                randomize(fileInput.filename)
+                shutil.make_archive("output", 'zip', "/home/pyodide/output")
+                os.delete(f'/home/pyodide/{fileInput.filename}')
+                shutil.rmtree("/home/pyodide/output")
+                print(os.listdir("/home/pyodide"))
+                asyncio.ensure_future(show(downloadButton, 'download_result'))
+
+            uploadButton.on_click(process_file)
+
+            print(os.listdir("/home/pyodide/"))
+
+            async def show_elements():
+                await show(fileInput, 'fileinput')
+                await show(uploadButton, 'upload')
+            asyncio.ensure_future(show_elements())
+        </py-script>
+        <h3>What is this ?</h3>
+        <p>The Universal Warp Randomizer is a project made by Atsign, turtleisaac, and XLuma, originally as an idea of Twitch streamer Pointcrow.</p>
+        <p>This tool will allow you to input a Pokemon game (see compatibility list for supported games), and randomize the warp points.</p>
+        <p>This results in a totally new and fresh experience to beat your favorite game.</p>
+
+        <p></p>
+        <h3>I thought it was a pc program?</h3>
+        <p>Yes. We do provide compiled releases available at Pointcrow's discord server for Windows, MacOS, and Linux.
+            However, those builds come with those issues:
+        </p>
+        <ul>
+            <li>MacOS support is limited to Big Sur and Monterey</li>
+            <li>Windows will flag the program as a (false-positive) virus, and will usually also delete the archive, so its vey annoying to fix</li>
+            <li>Linux sometimes gives trouble to launch due to Linux being Linux. Third-party pacakges may be required on your distro to open the program.</li>
+        </ul>
+        <p>As such, with the help of a new web framework called Pyscript, we are able to serve the program ourselves without having to port any code, as<br>
+            Pyscript allows to use native Python code in your browser, with no setup required for the user. This means that <b>it works with any device (computer, phone, etc) on any<br>
+                Internet browser (Firefox, Chrome, Edge, etc).</b>
+        </p>
+
+        <h3>Compatible games</h3>
+        <ul>
+            <li>Pokemon Emerald</li>
+            <li>Pokemon Firered (1.0 and 1.1)</li>
+            <li>Pokemon Leafgreen(1.0 and 1.1)</li>
+            <li>Pokemon Platinum</li>
+            <li>Pokemon White 2</li>
+        </ul>
+
+        <p>This tool is currently maintained by XLuma, Atsign, and turtleisaac.<br>
+            While this website will be maintained, updates to the core program may not happen for a very long time because life is a bitch, and society<br>
+            decided that you need to work to survive. Too bad !
+        </p>
+  </body>
+</html>
