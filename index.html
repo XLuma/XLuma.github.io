@@ -67,7 +67,7 @@
                 os.makedirs("/home/pyodide/output")
                 randomize(fileInput.filename)
                 shutil.make_archive("output", 'zip', "/home/pyodide/output")
-                os.delete(f'/home/pyodide/{fileInput.filename}')
+                os.remove(f'/home/pyodide/{fileInput.filename}')
                 shutil.rmtree("/home/pyodide/output")
                 print(os.listdir("/home/pyodide"))
                 asyncio.ensure_future(show(downloadButton, 'download_result'))
