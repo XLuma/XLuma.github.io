@@ -20,9 +20,9 @@
   <body>
         <py-config type="toml">
             packages = ["numpy", "pandas", "panel==0.13.1a2", "activejson", "./crcmod-1.7-py3-none-any.whl", "ndspy", "more_itertools", "ordered_set"]
-            terminal = false
+            terminal = true
             [[fetch]]
-            files = ["./randomizer_py.zip"]
+            files = [""]
         </py-config>
         <h1 style="text-align: center;">Universal Warp Randomizer</h1>
         <h2>How to use</h2>
@@ -49,7 +49,7 @@
             import zipfile
             import sys
             import shutil
-
+            print(os.listdir("/"))
             fileInput = pn.widgets.FileInput(accept='.gba,.nds')
             uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
             downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
