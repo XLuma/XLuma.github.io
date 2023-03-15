@@ -1,6 +1,7 @@
 This is the repo hosting the web version of Universal Warp Randomizer.
 
 Warp randomizer:
+
 **Software provided as-is. The creators/maintainers (XLuma, Atsign, Turtleisaac) are not liable for any damages to files or hardware.
 The contents of this page may not be copied,reused, redistributed without agreement from the maintainers. The Warp Randomizer may not be downloaded, copied, reused or redistributed without agreement from the maintainers. For public standalone releases, please join Pointcrow's discord (discord.gg/pointcrow)**
 
