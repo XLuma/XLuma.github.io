@@ -1,0 +1,58 @@
+@media (min-width: 300px) {
+  .showcase {
+    width: 90%;
+    padding-right: 3px;
+  }
+}
+
+.profilepic_image {
+  border-radius: 52%;
+  border-style: solid;
+  border-color: rgb(255,255,255);
+  overflow: hidden;
+  position: sticky;
+  /*display: flex;*/
+  margin-top: 34px;
+  margin-left: 75px;
+}
+
+.profilepic_name {
+  text-align: center;
+  position: static;
+  margin-top: 45px;
+  font-size: 30.4px;
+}
+
+.profile_link {
+}
+
+@media (min-width: 576px) {
+  .profilepic_image {
+    margin-left: 185px;
+  }
+}
+
+@media (min-width: 768px) {
+  .profilepic_image {
+    margin-left: 29px;
+  }
+}
+
+@media (min-width: 992px) {
+  .profilepic_image {
+    margin-left: 72px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .profilepic_image {
+    margin-left: 101px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .profilepic_image {
+    margin-left: 132px;
+  }
+}
+

@@ -1,118 +1,137 @@
-<html>
-    <head>
+<!DOCTYPE html>
+<html lang="en">
 
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.js"></script>
-        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.js"></script>
-        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
-        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
-        <script type="text/javascript" src="https://unpkg.com/@holoviz/panel@0.13.0/dist/panel.min.js"></script>
-        <script type="text/javascript">
-          Bokeh.set_log_level("info");
-        </script>
-    
-    
-        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-        <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
-    </head>
-  <body>
-        <py-config type="toml">
-            packages = ["numpy", "pandas", "panel==0.13.1a2", "activejson", "./crcmod-1.7-py3-none-any.whl", "ndspy", "more_itertools", "ordered_set"]
-            terminal = false
-            [[fetch]]
-            files = ["./randomizer_py.zip"]
-        </py-config>
-        <h1 style="text-align: center;">Universal Warp Randomizer</h1>
-        <h2>How to use</h2>
-        <ul>
-            <li>Click choose file, and select your rom</li>
-            <li>Click randomize, and wait</li>
-            <li>Click download to download your output. It will be a zip file containing your randomized game, and seed.</li>
-        </ul>
-        <div id="fileinput"></div>
-        <div id="upload"></div>
-        <div id="download_result" ></div>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Universal warp randomizer</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Asap:400,500,600,700&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/@holoviz/panel@0.13.0/dist/panel.min.js"></script>
+    <script type="text/javascript">
+        Bokeh.set_log_level("info");
+    </script>
 
 
-        <!---<py-script>
-            from randomizer_py import WarpRandomizerMain
-            WarpRandomizerMain.randomize()
-        </py-script> --->
-        <py-script>
-            import asyncio
-            import panel as pn
-            import pandas as pd
-            from panel.io.pyodide import show
-            import os
-            import zipfile
-            import sys
-            import shutil
-            print(os.listdir("/"))
-            fileInput = pn.widgets.FileInput(accept='.gba,.nds')
-            uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
-            downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+</head>
 
-            with zipfile.ZipFile("/home/pyodide/randomizer_py.zip","r") as zip_ref:
-                zip_ref.extractall()
+<body style="background: rgb(54,53,53); cursor: url(assets/img/icon.png), auto;">
+    <py-config type="toml">
+        packages = ["numpy", "pandas", "panel==0.13.1a2", "activejson", "./crcmod-1.7-py3-none-any.whl", "ndspy", "more_itertools", "ordered_set"]
+        terminal = false
+        [[fetch]]
+        files = ["./randomizer_py.zip"]
+    </py-config>
+    <py-script>
+        import asyncio
+        import panel as pn
+        import pandas as pd
+        from panel.io.pyodide import show
+        import os
+        import zipfile
+        import sys
+        import shutil
+        print(os.listdir("/"))
+        fileInput = pn.widgets.FileInput(accept='.gba,.nds')
+        uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
+        downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
 
-            def process_file(event):
-                sys.path.insert(0, '/home/pyodide/randomizer_py')
-                from randomizer_py.WarpRandomizerMain import randomize
-                print(fileInput)
-                print(os.path.abspath(fileInput.filename))
-                with open(f'/home/pyodide/{fileInput.filename}', 'wb') as file:
-                    file.write(fileInput.value)
-                os.makedirs("/home/pyodide/output")
-                randomize(fileInput.filename)
-                shutil.make_archive("output", 'zip', "/home/pyodide/output")
-                os.remove(f'/home/pyodide/{fileInput.filename}')
-                shutil.rmtree("/home/pyodide/output")
-                print(os.listdir("/home/pyodide"))
-                asyncio.ensure_future(show(downloadButton, 'download_result'))
+        with zipfile.ZipFile("/home/pyodide/randomizer_py.zip","r") as zip_ref:
+            zip_ref.extractall()
 
-            uploadButton.on_click(process_file)
+        def process_file(event):
+            sys.path.insert(0, '/home/pyodide/randomizer_py')
+            from randomizer_py.WarpRandomizerMain import randomize
+            print(fileInput)
+            print(os.path.abspath(fileInput.filename))
+            with open(f'/home/pyodide/{fileInput.filename}', 'wb') as file:
+                file.write(fileInput.value)
+            os.makedirs("/home/pyodide/output")
+            randomize(fileInput.filename)
+            shutil.make_archive("output", 'zip', "/home/pyodide/output")
+            os.remove(f'/home/pyodide/{fileInput.filename}')
+            shutil.rmtree("/home/pyodide/output")
+            print(os.listdir("/home/pyodide"))
+            asyncio.ensure_future(show(downloadButton, 'download'))
 
-            print(os.listdir("/home/pyodide/"))
+        uploadButton.on_click(process_file)
 
-            async def show_elements():
-                await show(fileInput, 'fileinput')
-                await show(uploadButton, 'upload')
-            asyncio.ensure_future(show_elements())
-        </py-script>
-        <h3>What is this ?</h3>
-        <p>The Universal Warp Randomizer is a project made by Atsign, turtleisaac, and XLuma, originally as an idea of Twitch streamer Pointcrow.</p>
-        <p>This tool will allow you to input a Pokemon game (see compatibility list for supported games), and randomize the warp points.</p>
-        <p>This results in a totally new and fresh experience to beat your favorite game.</p>
+        print(os.listdir("/home/pyodide/"))
 
-        <p></p>
-        <h3>I thought it was a pc program?</h3>
-        <p>Yes. We do provide compiled releases available at Pointcrow's discord server for Windows, MacOS, and Linux.
-            However, those builds come with those issues:
-        </p>
-        <ul>
-            <li>MacOS support is limited to Big Sur and Monterey</li>
-            <li>Windows will flag the program as a (false-positive) virus, and will usually also delete the archive, so its vey annoying to fix</li>
-            <li>Linux sometimes gives trouble to launch due to Linux being Linux. Third-party pacakges may be required on your distro to open the program.</li>
-        </ul>
-        <p>As such, with the help of a new web framework called Pyscript, we are able to serve the program ourselves without having to port any code, as<br>
-            Pyscript allows to use native Python code in your browser, with no setup required for the user. This means that <b>it works with any device (computer, phone, etc) on any<br>
-                Internet browser (Firefox, Chrome, Edge, etc).</b>
-        </p>
+        async def show_elements():
+            await show(fileInput, 'choosefile')
+            await show(uploadButton, 'randomize')
+        asyncio.ensure_future(show_elements())
+    </py-script>
+    <section id="top">
+        <div>
+            <h1 style="color: var(--bs-orange);text-align: center;font-size: 51.4px;margin-bottom: 19px;font-family: Asap, sans-serif;font-weight: bold;">Universal warp randomizer</h1>
+            <div class="container" style="padding-top: 13px;padding-bottom: 13px;height: 474px;">
+                <div class="row" style="height: 226px;">
+                    <div class="col">
+                        <h1 style="color: var(--bs-orange);padding-top: 24px;font-weight: bold;text-decoration: underline;">How to use</h1>
+                        <ul style="padding-top: 30px;color: rgb(255,255,255);">
+                            <li>Click choose file and select your game</li>
+                            <li>Click randomize, and wait</li>
+                            <li>Click download, and play !</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row" style="height: 226px;">
+                    <div class="col">
+                        <div id="choosefile"></div>
+                        <div id="randomize"></div>
+                        <div id="download"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="whatisthis">
+        <div style="padding-top: 6px;padding-bottom: 6px;padding-left: 19px;padding-right: 19px;">
+            <h1 style="color: var(--bs-orange);padding-left: 0px;padding-right: 0px;padding-top: 0px;padding-bottom: 0px;margin-top: 0px;margin-bottom: 0px;font-family: Asap, sans-serif;font-weight: bold;">What is this ?</h1>
+            <p style="color: rgb(255,255,255);text-align: left;border-left-style: solid;border-left-color: var(--bs-orange);padding: 4px;font-family: Asap, sans-serif;">The Universal Warp Randomizer is a tool that will allow you to randomize the warp points in a Pokemon game, resulting in a fresh experience.</p>
+        </div>
+    </section>
+    <section id="in_action" style="padding-left: 18px;padding-right: 13px;padding-top: 20px;">
+        <h1 style="font-family: Asap, sans-serif;color: var(--bs-orange);font-weight: bold;text-decoration: underline;">See it in action !</h1>
+        <div class="d-md-flex align-items-md-center" style="padding-top: 8px;padding-bottom: 13px;"><iframe allowfullscreen="" frameborder="0" id="emerald" class="showcase" width="560" height="315" src="https://www.youtube.com/embed/4C-UmXxVB5c?controls=0"></iframe><iframe allowfullscreen="" frameborder="0" id="platinum" class="showcase" width="560" height="315" src="https://www.youtube.com/embed/LzRC6zTr5go?controls=0" style="padding-left: 3px;"></iframe></div>
+    </section>
+    <section id="whoweare" style="margin-top: 10px;margin-right: 0px;padding-left: 20px;padding-right: 10px;">
+        <h1 style="color: var(--bs-orange);font-weight: bold;padding-bottom: 6px;text-decoration: underline;">Who we are</h1>
+        <div class="container profilepic" style="height: 300px;padding-left: 3px;margin-top: 26px;">
+            <div class="row" style="height: 100%;">
+                <div class="col-md-4" style="height: 100%;border-style: solid;border-color: var(--bs-orange);border-bottom-style: solid;border-bottom-color: var(--bs-orange);">
+                    <div style="height: 100%;width: 100%;"><a class="profile_link" href="https://twitter.com/TheFanatiker"><img class="profilepic_image" width="150px" height="150px" src="assets/img/crop_luma.jpg">
+                            <h1 class="profilepic_name" style="color: var(--bs-orange);text-decoration: underline;font-family: Asap, sans-serif;">XLuma</h1>
+                        </a></div>
+                </div>
+                <div class="col-md-4" style="height: 100%;border-style: solid;border-color: var(--bs-orange);border-bottom-style: solid;border-bottom-color: var(--bs-orange);"><a class="profile_link" href="https://twitter.com/atsign8877">
+                        <div style="width: 100%;height: 100%;"><img class="profilepic_image" width="150px" height="150px" src="assets/img/Vdw22WPB_400x400.jpg">
+                            <h1 class="profilepic_name" style="font-family: Asap, sans-serif;color: var(--bs-orange);text-decoration: underline;">Atsign</h1>
+                        </div>
+                    </a></div>
+                <div class="col-md-4" style="height: 100%;border-style: solid;border-color: var(--bs-orange);padding-bottom: 0px;"><a class="profile_link" href="https://twitter.com/Turtleisaac" style="width: 100%;height: 100%;">
+                        <div style="width: 100%;height: 100%;"><img class="profilepic_image" width="150px" height="150px" src="assets/img/turtleisaac.png">
+                            <h1 class="profilepic_name" style="font-family: Asap, sans-serif;text-decoration: underline;color: var(--bs-orange);">Turtleisaac</h1>
+                        </div>
+                    </a></div>
+            </div>
+        </div>
+    </section>
+    <div style="margin-bottom: 0px;padding-bottom: 9px;"></div>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
 
-        <h3>Compatible games</h3>
-        <ul>
-            <li>Pokemon Emerald</li>
-            <li>Pokemon Firered (1.0 and 1.1)</li>
-            <li>Pokemon Leafgreen(1.0 and 1.1)</li>
-            <li>Pokemon Platinum</li>
-            <li>Pokemon White 2</li>
-        </ul>
-
-        <p>This tool is currently maintained by XLuma, Atsign, and turtleisaac.<br>
-            While this website will be maintained, updates to the core program may not happen for a very long time because life is a bitch, and society<br>
-            decided that you need to work to survive. Too bad !
-        </p>
-  </body>
 </html>
