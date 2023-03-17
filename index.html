@@ -67,45 +67,54 @@
       files = ["./randomizer_py.zip"]
     </py-config>
     <py-script>
-        import asyncio 
-        import panel as pn 
-        import pandas as pd 
-        from panel.io.pyodide import show 
-        import os 
-        import zipfile 
-        import sys 
-        import shutil
+            import asyncio
+            import panel as pn
+            import pandas as pd
+            from panel.io.pyodide import show
+            import os
+            import zipfile
+            import sys
+            import shutil
 
-        print(os.listdir("/")) 
-        fileInput = pn.widgets.FileInput(accept='.gba,.nds')
-        uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
-        downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
+            fileInput = pn.widgets.FileInput(accept='.gba,.nds')
+            uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
+            downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
+            seedInput = pn.widgets.TextInput(placeholder='Enter custom seed here')
 
-        with zipfile.ZipFile("/home/pyodide/randomizer_py.zip","r") as zip_ref:
-            zip_ref.extractall() 
-        def process_file(event): 
-            sys.path.insert(0, '/home/pyodide/randomizer_py') 
-            from randomizer_py.WarpRandomizerMain import randomize
-            print(fileInput)
-            print(os.path.abspath(fileInput.filename))
-            with open(f'/home/pyodide/{fileInput.filename}', 'wb') as file:
-                file.write(fileInput.value)
-            file.close()
-            os.makedirs("/home/pyodide/output")
-            randomize(fileInput.filename)
-            shutil.make_archive("output", 'zip', "/home/pyodide/output")
-            os.remove(f'/home/pyodide/{fileInput.filename}')
-            shutil.rmtree("/home/pyodide/output")
-            print(os.listdir("/home/pyodide"))
-            asyncio.ensure_future(show(downloadButton, 'download'))
-        
-        uploadButton.on_click(process_file)
-        print(os.listdir("/home/pyodide/"))
-        async def show_elements(): 
-            await show(fileInput, 'choosefile')
-            await show(uploadButton, 'randomize')
-        asyncio.ensure_future(show_elements())
-    </py-script>
+            with zipfile.ZipFile("/home/pyodide/randomizer_py.zip","r") as zip_ref:
+                zip_ref.extractall()
+                
+            def process_file(event):
+                sys.path.insert(0, '/home/pyodide/randomizer_py')
+                from randomizer_py.WarpRandomizerMain import randomize
+                print(fileInput.filename)
+                print(os.path.abspath(fileInput.filename))
+                with open(f'/home/pyodide/{fileInput.filename}', 'wb') as file:
+                    file.write(fileInput.value)
+                os.makedirs("/home/pyodide/output")
+                if randomize(fileInput.filename, seedInput.value) == 0:
+                    shutil.make_archive("output", 'zip', "/home/pyodide/output")
+                    os.remove(f'/home/pyodide/{fileInput.filename}')
+                    shutil.rmtree("/home/pyodide/output")
+                    print(os.listdir("/home/pyodide"))
+                    downloadButton.visible = True
+                else:
+                    os.remove(f'/home/pyodide/{fileInput.filename}')
+                    shutil.rmtree("/home/pyodide/output")
+                    downloadButton.visible = False
+
+            uploadButton.on_click(process_file)
+
+            print(os.listdir("/home/pyodide/"))
+
+            async def show_elements():
+                await show(fileInput, 'fileinput')
+                await show(uploadButton, 'upload')
+                await show(seedInput, 'inputseed')
+                await show(downloadButton, 'download')
+            asyncio.ensure_future(show_elements())
+            downloadButton.visible = False
+        </py-script>
 
     <section id="top">
       <div>
