@@ -17,15 +17,15 @@ body > section {
   }
 }
 
-@media (min-width: 992px) {
-  #faq {
-    padding-top: 31px;
-  }
-}
-
 @media (min-width: 300px) {
   #faq {
     padding-top: 597px;
+  }
+}
+
+@media (min-width: 770px) {
+  #faq {
+    padding-top: 31px;
   }
 }
 
