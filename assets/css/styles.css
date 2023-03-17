@@ -17,12 +17,15 @@ body > section {
   }
 }
 
+@media (max-width: 768px){
+  #faq {
+    padding-top: 597px;
+  }
+}
+
 @media (min-width: 300px) {
   .showcase {
     padding-right: 3px;
-  }
-  #faq {
-    padding-top: 597px;
   }
 }
 
