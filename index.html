@@ -108,8 +108,8 @@
             print(os.listdir("/home/pyodide/"))
 
             async def show_elements():
-                await show(fileInput, 'fileinput')
-                await show(uploadButton, 'upload')
+                await show(fileInput, 'choosefile')
+                await show(uploadButton, 'randomize')
                 await show(seedInput, 'inputseed')
                 await show(downloadButton, 'download')
             asyncio.ensure_future(show_elements())
