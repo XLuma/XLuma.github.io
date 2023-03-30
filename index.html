@@ -68,54 +68,99 @@
     </py-config>
     <py-script>
             import asyncio
+            import pyodide
             import panel as pn
-            import pandas as pd
             from panel.io.pyodide import show
             import os
             import zipfile
             import sys
             import shutil
+            from js import document, console, window, Uint8Array, Event
+            from pyodide import create_proxy, to_js
+            import io
 
             fileInput = pn.widgets.FileInput(accept='.gba,.nds')
             uploadButton = pn.widgets.Button(name="Randomize", button_type = "primary")
-            downloadButton = pn.widgets.FileDownload(button_type = "primary", file="/home/pyodide/output.zip")
             seedInput = pn.widgets.TextInput(placeholder='Enter custom seed here')
+            downloadButton = pn.widgets.Button(name='Download', button_type='primary')
+            content = ""
 
             with zipfile.ZipFile("/home/pyodide/randomizer_py.zip","r") as zip_ref:
                 zip_ref.extractall()
-                
+            
             def process_file(event):
                 sys.path.insert(0, '/home/pyodide/randomizer_py')
                 from randomizer_py.WarpRandomizerMain import randomize
-                print(fileInput.filename)
-                print(os.path.abspath(fileInput.filename))
-                with open(f'/home/pyodide/{fileInput.filename}', 'wb') as file:
-                    file.write(fileInput.value)
+                file_base = ""
+                for file in os.listdir("/home/pyodide/"):
+                    if file.endswith(".nds") or file.endswith(".gba"):
+                        print(os.path.join("/home/pyodide/", file))
+                        file_base = file
+                if os.path.exists("/home/pyodide/output"):
+                    shutil.rmtree("/home/pyodide/output")
                 os.makedirs("/home/pyodide/output")
-                if randomize(fileInput.filename, seedInput.value) == 0:
+                if randomize(file_base, seedInput.value) == 0:
                     shutil.make_archive("output", 'zip', "/home/pyodide/output")
-                    os.remove(f'/home/pyodide/{fileInput.filename}')
+                    os.remove(f'/home/pyodide/{file_base}')
                     shutil.rmtree("/home/pyodide/output")
                     print(os.listdir("/home/pyodide"))
-                    downloadButton.visible = True
+                    document.dispatchEvent(pyscript_finished)
                 else:
-                    os.remove(f'/home/pyodide/{fileInput.filename}')
+                    os.remove(f'/home/pyodide/{file_base}')
                     shutil.rmtree("/home/pyodide/output")
                     downloadButton.visible = False
 
             uploadButton.on_click(process_file)
 
             print(os.listdir("/home/pyodide/"))
-
+            async def upload_change_and_show(e):
+                file_list = e.target.files
+                first_item = file_list.item(0)
+                array_buf = Uint8Array.new(await first_item.arrayBuffer())
+                print("hello from buffer")
+                print("writing file to storage")
+                with open(f'/home/pyodide/{first_item.name}', 'wb') as file:
+                    file.write(array_buf.to_py())
+                print(os.path.getsize(f'/home/pyodide/{first_item.name}'))
+                array_buf = None
+      
             async def show_elements():
                 await show(uploadButton, 'randomize')
                 await show(seedInput, 'inputseed')
-                await show(downloadButton, 'download')
-                await show(fileInput, 'choosefile')
+                await show (downloadButton, 'download')
             asyncio.ensure_future(show_elements())
             downloadButton.visible = False
+            upload_file = create_proxy(upload_change_and_show)
+            document.getElementById("file-upload").addEventListener("change", upload_file)
+            pyscript_finished = Event.new('pyscript_finished')    
         </py-script>
+        <script>
+            var button;
+            let pyodide;
+            let div;
+            let i = 0;
+            document.addEventListener('pyscript_finished', () => {
+                //div = document.getElementById("download");
+               // button = div.getElementsByTagName("button")[0];
+                //console.log(button)
+                //button.addEventListener('click', download_output())
+                var downloadButton = document.createElement("button");
+                downloadButton.addEventListener('click', download_output());
+                downloadButton.click();
+            })
+            function download_output()
+            {
+                let file = pyscript.runtime.interpreter.FS.readFile("/home/pyodide/output.zip", {"encoding": 'binary'})
+                const blob = new Blob([file], {type : 'application/octet-stream'});
+                let url = window.URL.createObjectURL(blob);
 
+                var downloadLink = document.createElement("a");
+                downloadLink.href = url;
+                downloadLink.download = "output.zip";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+            }
+        </script>
     <section id="top">
       <div>
         <h1
